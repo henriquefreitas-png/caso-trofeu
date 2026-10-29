@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O Caso do Troféu Desaparecido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&family=Kalam:wght@400;700&family=Saira+Stencil+One&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: mesa de investigação escura; a pasta parda é o palco; vermelho só para carimbos */
+  --desk:#17222a; --desk-2:#23333d; --desk-line:#2f424e;
+  --manila:#e4cc94; --manila-2:#d3b779; --manila-edge:#b8975a;
+  --paper:#faf6ec; --ink:#1c1f26; --muted:#655d4b;
+  --stamp:#b3302a; --gold:#c9981c; --ok:#2f6b3a;
+  --f-display:"Saira Stencil One", Impact, "Arial Narrow", sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  --f-type:"Special Elite", "Courier New", monospace;
+  --f-hand:"Caveat", "Segoe Print", cursive;
+  --f-hand2:"Kalam", "Comic Sans MS", cursive;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 20% -10%, #24343f 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, #1f2d36 0%, transparent 60%),
+    var(--desk);
+  color:#efe6d0; font-family:var(--f-body);
+  font-size:clamp(16px, 0.55vw + 12px, 21px); line-height:1.5;
+  min-height:100%;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold); outline-offset:3px}
+h1,h2,h3{text-wrap:balance; margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- Abertura ---------- */
+.wrap{max-width:1180px; margin:0 auto; padding:clamp(16px,3vw,36px)}
+.folder{
+  position:relative; background:var(--manila); color:var(--ink);
+  border-radius:0 10px 10px 10px; padding:clamp(20px,4vw,48px);
+  box-shadow:0 30px 60px -20px #000a, inset 0 0 0 1px var(--manila-edge);
+  margin-top:34px;
+}
+.folder::before{
+  content:attr(data-tab); position:absolute; left:0; top:-32px; height:32px;
+  padding:4px 22px 0; background:var(--manila); border-radius:10px 10px 0 0;
+  font-family:var(--f-type); font-size:.8em; letter-spacing:.08em;
+  box-shadow:inset 1px 1px 0 var(--manila-edge), inset -1px 0 0 var(--manila-edge);
+}
+.hero{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:clamp(16px,3vw,40px); align-items:center}
+.kicker{font-family:var(--f-type); color:var(--muted); letter-spacing:.06em; font-size:.9em}
+.title{font-family:var(--f-display); font-weight:400; font-size:clamp(2.4rem, 6vw, 5rem); line-height:.95; letter-spacing:.01em; margin:.2em 0 .25em}
+.title em{font-style:normal; color:var(--stamp)}
+.lede{max-width:60ch; font-size:1.05em}
+.ghost{width:clamp(120px,18vw,210px); height:auto}
+.ghost path{fill:none; stroke:var(--ink); stroke-width:2.2; stroke-dasharray:5 5; opacity:.7}
+.ghost .shelf{stroke:var(--ink); stroke-width:4; stroke-dasharray:none; opacity:.9}
+.ghost text{font-family:var(--f-display); fill:var(--stamp); font-size:44px}
+.stampbig{
+  position:absolute; right:clamp(14px,3vw,40px); top:clamp(-18px,-1vw,-8px);
+  font-family:var(--f-display); color:var(--stamp); border:4px solid var(--stamp);
+  padding:.05em .45em; font-size:clamp(1rem,2vw,1.5rem); transform:rotate(6deg);
+  letter-spacing:.06em; background:#e4cc94cc; mix-blend-mode:multiply;
+}
+.startform{display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin-top:1.4em}
+.field{display:flex; flex-direction:column; gap:4px; flex:1 1 260px}
+.field label{font-weight:700; font-size:.9em}
+.field input{
+  padding:.65em .8em; border:2px solid var(--manila-edge); border-radius:6px;
+  background:var(--paper); color:var(--ink);
+}
+.cta{
+  background:var(--stamp); color:#fff6ea; border:0; border-radius:6px;
+  padding:.75em 1.3em; font-weight:700; letter-spacing:.02em;
+  box-shadow:0 4px 0 #7d1f1a;
+}
+.cta:hover{filter:brightness(1.08)}
+.cta:active{transform:translateY(2px); box-shadow:0 2px 0 #7d1f1a}
+.cta[disabled]{opacity:.5; cursor:not-allowed}
+.how{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:1.6em; padding:0; list-style:none}
+.how li{border-top:2px solid var(--ink); padding-top:.5em; font-size:.92em}
+.how b{display:block; font-family:var(--f-type); font-weight:400; color:var(--stamp)}
+.errmsg{color:var(--stamp); font-weight:700; width:100%; margin:0}
+
+/* ---------- Briefing ---------- */
+.letter{
+  background:var(--paper); color:var(--ink); padding:clamp(18px,3vw,34px);
+  font-family:var(--f-type); line-height:1.65; box-shadow:0 8px 20px -10px #0007;
+  transform:rotate(-.3deg); max-width:70ch;
+}
+.letter p{margin:0 0 .8em}
+.brief{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:clamp(16px,3vw,36px); align-items:start}
+.fichas{display:grid; gap:10px}
+.rules{background:#00000010; border:1px dashed var(--manila-edge); border-radius:8px; padding:1em 1.2em; margin-top:14px; font-size:.92em}
+.rules ul{margin:.3em 0 0; padding-left:1.1em}
+.rowend{display:flex; justify-content:flex-end; margin-top:1.4em}
+
+/* ---------- Barra do jogo ---------- */
+.bar{display:flex; flex-wrap:wrap; align-items:center; gap:10px 24px; padding:14px clamp(16px,3vw,32px); border-bottom:1px dashed var(--desk-line)}
+.case{display:flex; flex-direction:column; line-height:1.1; margin-right:auto}
+.caseno{font-family:var(--f-type); color:var(--gold); font-size:.8em; letter-spacing:.1em}
+.casetitle{font-family:var(--f-display); font-size:clamp(1.3rem,2.4vw,2rem)}
+.who{font-size:.92em; color:#d9cfb6}
+.rep{display:flex; align-items:center; gap:10px; background:var(--desk-2); padding:6px 14px; border-radius:8px; border:1px solid var(--desk-line)}
+.rep span{font-size:.78em; text-transform:uppercase; letter-spacing:.08em; color:#bdb39b}
+.rep b{font-family:var(--f-display); font-weight:400; font-size:1.6em; color:var(--gold); font-variant-numeric:tabular-nums; min-width:2.2ch; text-align:right}
+.rep small{color:#9b927c}
+
+/* ---------- Quadro de suspeitos ---------- */
+.board{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; padding:14px clamp(16px,3vw,32px) 4px}
+.sus{
+  position:relative; background:var(--manila); color:var(--ink); border-radius:6px;
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:10px; align-items:center;
+  padding:10px 12px; box-shadow:0 6px 14px -8px #000a; overflow:hidden;
+  transition:filter .4s;
+}
+.sus .av{
+  width:2.6em; height:2.6em; border-radius:50%; display:grid; place-items:center;
+  background:var(--c); color:#fff; font-family:var(--f-display); font-size:.95em;
+  box-shadow:inset 0 -4px 0 #0003;
+}
+.sus .nm{font-weight:700; line-height:1.15}
+.sus .rl{font-size:.78em; color:var(--muted); line-height:1.2}
+.sus .nt{grid-column:1 / -1; font-size:.78em; line-height:1.3; border-top:1px dashed var(--manila-edge); padding-top:6px}
+.sus.cleared{filter:grayscale(.75) brightness(.92)}
+.stamp{
+  position:absolute; right:8px; top:12px; transform:rotate(-11deg);
+  border:3px solid var(--stamp); color:var(--stamp); background:#f3e3b9e6;
+  font-family:var(--f-display); font-size:.82em; padding:0 .4em; letter-spacing:.05em;
+  white-space:nowrap; filter:none;
+}
+.stamp.gold{border-color:#8a6408; color:#8a6408}
+.stamp.solved{border-color:var(--stamp); background:var(--stamp); color:#fff}
+.slam{animation:slam .5s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes slam{from{transform:rotate(-11deg) scale(2.4); opacity:0} to{transform:rotate(-11deg) scale(1); opacity:1}}
+
+/* ---------- Abas ---------- */
+.tabs{display:flex; flex-wrap:wrap; gap:6px; padding:16px clamp(16px,3vw,32px) 0}
+.tab{
+  background:var(--manila-2); color:var(--ink); border:0; border-radius:10px 10px 0 0;
+  padding:.45em 1em .35em; font-family:var(--f-type); font-size:.88em;
+  display:flex; align-items:center; gap:6px; opacity:.85;
+}
+.tab.on{background:var(--manila); opacity:1; box-shadow:0 -3px 0 var(--stamp) inset}
+.tab[disabled]{opacity:.35; cursor:not-allowed}
+.tab .ck{color:var(--ok); font-weight:700}
+.tab svg{width:.9em; height:.9em}
+
+/* ---------- Área de trabalho ---------- */
+.work{
+  display:grid; grid-template-columns:minmax(0,1.12fr) minmax(0,1fr); gap:clamp(14px,2vw,26px);
+  margin:0 clamp(16px,3vw,32px) 40px; background:var(--manila); border-radius:0 10px 10px 10px;
+  padding:clamp(14px,2.4vw,30px); color:var(--ink); align-items:start;
+  box-shadow:0 30px 60px -24px #000c;
+}
+.dochead{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 14px; margin-bottom:12px}
+.dochead h2{font-family:var(--f-display); font-weight:400; font-size:clamp(1.3rem,2.2vw,1.8rem)}
+.genre{font-family:var(--f-type); font-size:.82em; background:var(--ink); color:var(--manila); padding:.1em .6em; border-radius:3px}
+.doc{
+  background:var(--paper); color:var(--ink); padding:1.3em 1.5em; position:relative;
+  box-shadow:0 10px 22px -12px #0008; transform:rotate(-.35deg);
+}
+.doc p{margin:0 0 .7em}
+.lined{
+  background-image:linear-gradient(90deg, transparent 2.2em, #e3a0a0 2.2em, #e3a0a0 calc(2.2em + 2px), transparent calc(2.2em + 2px)),
+    repeating-linear-gradient(180deg, transparent 0, transparent calc(1.9em - 1px), #c8d6e6 calc(1.9em - 1px), #c8d6e6 1.9em);
+  background-color:var(--paper); padding-left:3em; line-height:1.9em;
+}
+.lined p{margin:0 0 1.9em}
+.hand2{font-family:var(--f-hand2); font-size:1.1em}
+.diary{font-family:var(--f-hand); font-size:1.5em; line-height:1.9em}
+.diary .lined-date{font-weight:700}
+.sign{text-align:right; margin-bottom:0 !important}
+.meta{font-family:var(--f-type); font-size:.75em; color:var(--muted); text-align:right}
+.typed{font-family:var(--f-type); line-height:1.7}
+.form-h{border-bottom:2px solid var(--ink); text-align:center; letter-spacing:.12em; padding-bottom:.3em; margin-bottom:.8em}
+.form-row{display:flex; flex-wrap:wrap; gap:4px 20px; font-size:.92em; margin-bottom:.8em}
+.form-row span b{font-weight:400; border-bottom:1px dotted var(--ink)}
+.chat{background:#dfe5e3; padding:14px; border-radius:16px; display:flex; flex-direction:column; gap:10px; transform:none}
+.chat .top{font-weight:700; font-size:.9em; display:flex; justify-content:space-between; border-bottom:1px solid #b9c3c0; padding-bottom:8px}
+.msg{background:#fff; border-radius:4px 14px 14px 14px; padding:.5em .8em; max-width:88%; box-shadow:0 1px 1px #0002}
+.msg .w{font-weight:700; font-size:.8em; color:#2a6c8c}
+.msg.l .w{color:#2f7a5a}
+.msg .t{font-size:.72em; color:#6b7472; text-align:right}
+.msg.l{align-self:flex-end; background:#d7f3cf; border-radius:14px 4px 14px 14px}
+.memo{font-family:var(--f-hand2); font-size:1.08em; line-height:1.8;
+  clip-path:polygon(0 0,100% 0,100% 100%,92% 97%,84% 100%,75% 96%,66% 100%,55% 97%,44% 100%,35% 96%,24% 100%,14% 97%,6% 100%,0 97%)}
+.memo ol{margin:.2em 0 .6em; padding-left:1.4em}
+.rip{display:inline-block; width:3.4em; height:1.05em; vertical-align:-.2em; background:var(--desk-2);
+  clip-path:polygon(0 12%,14% 0,28% 18%,42% 4%,58% 22%,72% 2%,88% 16%,100% 6%,100% 88%,86% 100%,70% 82%,56% 100%,40% 84%,26% 100%,12% 82%,0 96%)}
+.pin{position:absolute; top:-10px; left:50%; width:18px; height:18px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #f06a5f, var(--stamp) 60%, #6d1a16); box-shadow:0 3px 4px #0006}
+
+/* ---------- Painel de perguntas ---------- */
+.panel{display:flex; flex-direction:column; gap:14px}
+.qcard{background:var(--paper); border-radius:8px; padding:1.1em 1.2em; border-left:7px solid var(--gold); box-shadow:0 10px 22px -14px #0008}
+.qmeta{display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 12px; font-size:.78em; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:.5em}
+.prompt{font-weight:700; font-size:1.1em; margin:0 0 .8em; line-height:1.4}
+.opts{display:grid; gap:8px}
+.opt{
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:10px; align-items:start; width:100%;
+  text-align:left; background:#fff; color:var(--ink); border:2px solid #d8cdb2; border-radius:8px; padding:.6em .8em;
+  transition:border-color .15s, transform .15s;
+}
+.opt:hover:not([disabled]){border-color:var(--ink); transform:translateX(2px)}
+.opt .lt{font-family:var(--f-display); width:1.7em; height:1.7em; border-radius:50%; display:grid; place-items:center; background:var(--ink); color:var(--manila); font-size:.85em}
+.opt.out{opacity:.5; text-decoration:line-through; cursor:not-allowed}
+.opt.out .lt{background:var(--stamp)}
+.opt.right{border-color:var(--ok); background:#e5f1e1}
+.opt.right .lt{background:var(--ok)}
+.opt.sel{border-color:var(--gold); background:#fbf0cf}
+.opt.sel .lt{background:var(--gold); color:var(--ink)}
+.fb{margin-top:12px; padding:.75em .9em; border-radius:6px; font-size:.95em}
+.fb.bad{background:#f7e0dc; border-left:5px solid var(--stamp)}
+.fb.good{background:#e1efdc; border-left:5px solid var(--ok)}
+.fb b{display:block}
+.pts{font-family:var(--f-display); color:var(--ok); font-size:1.1em}
+.tools{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-top:12px}
+.lupa{background:transparent; border:2px dashed var(--gold); color:#6e520a; border-radius:6px; padding:.4em .8em; display:inline-flex; gap:8px; align-items:center; font-weight:700; font-size:.9em}
+.lupa svg{width:1.2em; height:1.2em}
+.lupa[disabled]{opacity:.5; cursor:default}
+.hint{margin-top:10px; background:#fff3cc; border:1px dashed var(--gold); border-radius:6px; padding:.6em .8em; font-size:.93em}
+.go{background:var(--ink); color:var(--manila); border:0; border-radius:6px; padding:.65em 1.1em; font-weight:700}
+.go:hover{background:#000}
+.fill{display:grid; gap:10px; margin-bottom:6px}
+.fill label{display:flex; align-items:center; gap:2px; font-family:var(--f-hand2); font-size:1.15em; flex-wrap:wrap}
+.fill input{border:0; border-bottom:2px solid var(--ink); background:#fff; padding:.15em .3em; width:9em; font-family:var(--f-hand2); font-size:1em; color:var(--ink)}
+.fill .tail{margin-left:6px}
+
+.clues{background:#00000012; border-radius:8px; padding:.6em 1em; border:1px dashed var(--manila-edge)}
+.clues summary{font-weight:700; cursor:pointer; list-style-position:inside}
+.clues ol{margin:.5em 0 .2em; padding-left:1.3em; font-size:.92em}
+.clues li{margin-bottom:.35em}
+.clues li.new{animation:glow 1.6s ease-out}
+@keyframes glow{from{background:#f7d77a} to{background:transparent}}
+.notebook{font-family:var(--f-hand); font-size:1.45em; line-height:1.9em}
+.notebook ol{padding-left:1.2em; margin:0}
+.reviewlist{margin:.2em 0 0; padding-left:1.2em; font-size:.93em}
+.reviewlist li{margin-bottom:.6em}
+.reviewlist .ans{display:block; color:var(--ok); font-weight:700}
+
+/* ---------- Final ---------- */
+.accuse{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px}
+.accuse .opt{grid-template-columns:auto minmax(0,1fr); align-items:center}
+.accuse .av{width:2.2em; height:2.2em; border-radius:50%; display:grid; place-items:center; background:var(--c); color:#fff; font-family:var(--f-display); font-size:.85em}
+.counter{font-size:.85em; color:var(--muted)}
+
+.end{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:clamp(16px,3vw,36px); align-items:start}
+.story p{margin:0 0 .9em}
+.plaque{
+  margin:1.2em auto .4em; max-width:420px; text-align:center; padding:1em 1.2em;
+  background:linear-gradient(135deg,#f3d77a,#c9981c 45%,#f6e19b 60%,#b0820f);
+  color:#3d2c02; border-radius:6px; box-shadow:0 8px 18px -8px #0009, inset 0 0 0 3px #8a640866;
+  font-family:var(--f-type); letter-spacing:.06em; line-height:1.5;
+}
+.plaque b{display:block; font-family:var(--f-display); font-weight:400; font-size:1.5em; letter-spacing:.04em}
+.badge{
+  width:min(260px,70vw); aspect-ratio:1; margin:0 auto; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #f8e6a6, var(--gold) 55%, #8a6408);
+  display:grid; place-items:center; text-align:center; color:#2e2102; padding:1.6em;
+  box-shadow:0 0 0 8px #8a640855, 0 18px 30px -10px #000c;
+}
+.badge .t1{font-family:var(--f-type); font-size:.75em; letter-spacing:.14em}
+.badge .t2{font-family:var(--f-display); font-size:1.35em; line-height:1.05; margin:.2em 0}
+.badge .t3{font-weight:700}
+.badge .t4{font-family:var(--f-display); font-size:2em; line-height:1}
+.skills{margin:.4em 0 0; padding-left:1.1em; font-size:.92em}
+.side{display:flex; flex-direction:column; gap:16px}
+
+@media (max-width: 980px){
+  .board{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  .work,.brief,.end{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width: 560px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .ghost{justify-self:center}
+  .sus .nt{display:none}
+  .stampbig{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== DADOS DO CASO ===================== */
+const SUSPECTS = [
+  {id:"celia",    name:"Dona Célia",   role:"Bibliotecária",        note:"Guarda uma das chaves da vitrine.", ini:"DC", c:"#7a4e8c"},
+  {id:"raimundo", name:"Seu Raimundo", role:"Zelador",              note:"Faz a ronda da escola à noite.",    ini:"SR", c:"#3d6e8f"},
+  {id:"lucas",    name:"Lucas",        role:"Aluno do 7º ano",      note:"Ficou em 2º lugar no concurso do ano passado.", ini:"LU", c:"#2f7a5a"},
+  {id:"bia",      name:"Bia",          role:"Aluna do 6º ano",      note:"Monitora da biblioteca. Também inscreveu um conto.", ini:"BI", c:"#a0522d"},
+  {id:"otavio",   name:"Prof. Otávio", role:"Professor de Artes",   note:"Responsável pela decoração da cerimônia.", ini:"PO", c:"#8a6d1d"}
+];
+const STATUS = {
+  alibi:   {txt:"ÁLIBI",          cls:"",       cleared:true},
+  semchave:{txt:"SEM CHAVE",      cls:"",       cleared:true},
+  chave:   {txt:"TEM A 2ª CHAVE", cls:"gold",   cleared:false},
+  r:       {txt:"CASO RESOLVIDO", cls:"solved", cleared:false}
+};
+
+const PHASES = [
+{
+  tab:"Doc. 1", title:"O bilhete do zelador", genre:"Bilhete",
+  doc:function(){return '<div class="doc lined hand2"><span class="pin"></span>'+
+    '<p>Dona Célia,</p>'+
+    '<p>Às 18h, fiz a ronda na biblioteca e o Troféu Pena de Ouro estava na vitrine, brilhando como sempre.</p>'+
+    '<p>Às 21h, na última ronda, encontrei a vitrine trancada e o vidro sem nenhum arranhão. Mas a prateleira de cima estava vazia!</p>'+
+    '<p>Ah, outra coisa: senti um cheiro forte de tinta no corredor do 2º andar. Achei esquisito, porque à noite ninguém pinta nada nesta escola.</p>'+
+    '<p class="sign">Raimundo</p>'+
+    '<div class="meta">quinta-feira, 21h10</div></div>';},
+  qs:[
+    {id:"q11", skill:"Localizar informação explícita",
+     prompt:"Segundo o bilhete, em que intervalo de tempo o troféu desapareceu?",
+     opts:[
+       {t:"Antes das 18h.", fb:"Releia a primeira ronda: às 18h o troféu ainda estava na vitrine."},
+       {t:"Entre 18h e 21h.", ok:true},
+       {t:"Depois das 21h.", fb:"Às 21h a prateleira já estava vazia. Então o sumiço aconteceu antes desse horário."},
+       {t:"Na sexta-feira de manhã.", fb:"O bilhete foi escrito na quinta-feira à noite e já fala do sumiço. Procure os horários no texto."}
+     ],
+     hint:"Procure no texto os dois horários das rondas do zelador. O que ele viu em cada uma delas?",
+     win:"Isso! Às 18h o troféu estava lá; às 21h, não estava mais. O sumiço aconteceu nesse intervalo.",
+     clues:["O troféu sumiu na quinta-feira, entre 18h e 21h."]},
+    {id:"q12", skill:"Inferir informação implícita",
+     prompt:"O zelador conta que a vitrine estava trancada e o vidro sem nenhum arranhão. O que um bom detetive conclui a partir disso?",
+     opts:[
+       {t:"O troféu nunca esteve na vitrine.", fb:"O próprio zelador viu o troféu na vitrine às 18h."},
+       {t:"Quem pegou o troféu abriu a vitrine com uma chave.", ok:true},
+       {t:"O ladrão quebrou o vidro e depois consertou.", fb:"O bilhete diz que não havia nenhum arranhão, e nada no texto fala em conserto. Não invente fatos!"},
+       {t:"O troféu caiu sozinho da prateleira.", fb:"Se tivesse caído, estaria dentro da vitrine trancada. Mas o zelador viu a prateleira vazia."}
+     ],
+     hint:"Se o vidro não foi quebrado e a vitrine continuava trancada, de que jeito alguém conseguiria tirar o troféu lá de dentro?",
+     win:"Exatamente. O texto não diz isso com todas as letras, mas permite concluir: sem arrombamento, só uma chave explica o sumiço. Isso se chama inferência.",
+     clues:["A vitrine foi aberta com chave: não houve arrombamento.","Seu Raimundo sentiu um cheiro forte de tinta no corredor do 2º andar."]}
+  ]
+},
+{
+  tab:"Doc. 2", title:"Mensagens no grupo do time", genre:"Mensagem instantânea",
+  doc:function(){return '<div class="doc chat">'+
+    '<div class="top"><span>Futsal – Escola (grupo)</span><span>quinta-feira</span></div>'+
+    '<div class="msg"><div class="w">Treinador Paulo</div>Atenção, time! O ônibus para o torneio em Vila Serena sai da escola às 17h em ponto. Quem atrasar fica!<div class="t">16:55</div></div>'+
+    '<div class="msg l"><div class="w">Lucas</div>Já tô dentro do ônibus, professor! 🚌<div class="t">16:58</div></div>'+
+    '<div class="msg l"><div class="w">Lucas</div>Gente, o pneu furou no meio da estrada 😩 Só vamos chegar em Vila Serena de madrugada.<div class="t">19:42</div></div>'+
+    '<div class="msg l"><div class="w">Lucas</div>Amanhã ninguém do time vai estar na cerimônia do concurso... Mas tudo bem. Ano que vem, aquele troféu é meu! 🏆<div class="t">19:43</div></div>'+
+    '<div class="msg"><div class="w">Treinador Paulo</div>Isso aí, Lucas! Agora todo mundo descansando.<div class="t">19:50</div></div>'+
+    '</div>';},
+  qs:[
+    {id:"q21", skill:"Sentido de expressão no contexto",
+     prompt:"Na mensagem “Ano que vem, aquele troféu é meu!”, o que Lucas quis dizer?",
+     opts:[
+       {t:"Que ele já pegou o troféu e vai escondê-lo até o ano que vem.", fb:"Releia a mensagem inteira: Lucas fala do futuro, não de algo que ele já fez."},
+       {t:"Que ele pretende se esforçar para vencer o concurso do próximo ano.", ok:true},
+       {t:"Que o troféu pertence a ele desde o ano passado.", fb:"Veja a ficha de Lucas no quadro de suspeitos: no ano passado ele ficou em 2º lugar."},
+       {t:"Que ele não gosta do concurso de contos.", fb:"Quem não gosta de um concurso não diria que quer o troféu."}
+     ],
+     hint:"A expressão “Ano que vem” indica que tempo: passado, presente ou futuro?",
+     win:"Muito bem! “Ano que vem” indica futuro: Lucas pretende vencer o PRÓXIMO concurso.",
+     clues:["“Ano que vem, aquele troféu é meu!”: Lucas fala do concurso do próximo ano."]},
+    {id:"q22", skill:"Relacionar informações e distinguir fato de suposição",
+     prompt:"Lucas pode ter pegado o troféu na quinta-feira à noite?",
+     opts:[
+       {t:"Sim, porque ele disse que o troféu vai ser dele.", fb:"Querer algo não é prova. Um detetive precisa de fatos: onde Lucas estava no horário do sumiço?"},
+       {t:"Sim, porque ele ficou com raiva de ter perdido no ano passado.", fb:"Nenhuma mensagem mostra raiva. Isso é uma suposição, não uma pista."},
+       {t:"Não, porque às 17h ele já estava no ônibus, e às 18h o troféu ainda estava na vitrine.", ok:true},
+       {t:"Não, porque Lucas parece ser um bom aluno.", fb:"“Parecer um bom aluno” é uma opinião, não uma prova. Procure horários!"}
+     ],
+     hint:"Compare o horário em que o ônibus saiu da escola com o horário em que o zelador viu o troféu pela última vez.",
+     win:"Perfeito! O ônibus saiu às 17h, e o troféu ainda estava na vitrine às 18h. Lucas tem um álibi.",
+     clues:["Lucas estava no ônibus do time desde as 17h, longe da escola."],
+     sus:{lucas:"alibi"}}
+  ]
+},
+{
+  tab:"Doc. 3", title:"O depoimento da bibliotecária", genre:"Depoimento",
+  doc:function(){return '<div class="doc typed">'+
+    '<div class="form-h">TERMO DE DEPOIMENTO</div>'+
+    '<div class="form-row"><span>Nome: <b>Célia Moura</b></span><span>Função: <b>bibliotecária</b></span><span>Data: <b>sexta-feira, 7h30</b></span></div>'+
+    '<p>“Existem apenas duas chaves da vitrine. Uma fica sempre comigo, presa no meu chaveiro. A outra eu emprestei na quarta-feira ao professor Otávio, de Artes. Ele me disse que precisava medir a base do troféu, mas até agora não a devolveu.</p>'+
+    '<p>Na quinta-feira, saí da escola às 17h30, porque tinha consulta no dentista. A consulta atrasou muito, e eu só saí do consultório às 21h30. A recepcionista pode confirmar.”</p>'+
+    '<p class="sign">Assinatura: <i>Célia Moura</i></p>'+
+    '</div>';},
+  qs:[
+    {id:"q31", skill:"Coesão: a quem o pronome se refere",
+     prompt:"No trecho “mas até agora não a devolveu”, a palavra “a” se refere a quê?",
+     opts:[
+       {t:"À base do troféu.", fb:"Pense: o que foi emprestado e precisaria ser devolvido?"},
+       {t:"À outra chave da vitrine.", ok:true},
+       {t:"À Dona Célia.", fb:"Dona Célia é quem está falando. O que ela emprestou ao professor?"},
+       {t:"À vitrine.", fb:"A vitrine não saiu da biblioteca. O que saiu das mãos de Dona Célia?"}
+     ],
+     hint:"Volte ao começo do parágrafo: o que Dona Célia emprestou ao professor Otávio?",
+     win:"Certo! O pronome “a” retoma “a outra chave”, citada antes. Assim o texto não precisa repetir a palavra.",
+     clues:["Só existem duas chaves da vitrine. A 2ª está com o professor Otávio desde quarta-feira."]},
+    {id:"q32", skill:"Relacionar informações com precisão",
+     prompt:"Por que o depoimento deixa Dona Célia praticamente fora da lista de suspeitos?",
+     opts:[
+       {t:"Porque ela saiu da escola às 17h30, antes do sumiço.", fb:"Cuidado! Sair às 17h30 não basta: ela poderia ter voltado mais tarde. O que mais o depoimento informa?"},
+       {t:"Porque ela é bibliotecária e cuida bem dos livros.", fb:"Isso é uma opinião sobre ela, não uma prova."},
+       {t:"Porque ela estava no dentista durante todo o horário do sumiço, e alguém pode confirmar.", ok:true},
+       {t:"Porque ela tem a chave da vitrine.", fb:"Ter a chave deixaria Dona Célia MAIS suspeita, e não menos."}
+     ],
+     hint:"O troféu sumiu entre 18h e 21h. Onde Dona Célia estava das 17h30 às 21h30? Quem pode confirmar?",
+     win:"Isso! Das 17h30 às 21h30 ela estava no consultório, e o sumiço foi entre 18h e 21h. E ainda há uma testemunha.",
+     clues:["Dona Célia estava no dentista das 17h30 às 21h30 (a recepcionista confirma)."],
+     sus:{celia:"alibi"}},
+    {id:"q33", skill:"Inferir juntando dois textos",
+     prompt:"Junte o bilhete do zelador com o depoimento de Dona Célia. Quem PODERIA ter aberto a vitrine sem quebrar o vidro?",
+     opts:[
+       {t:"Qualquer pessoa da escola.", fb:"A vitrine foi aberta sem arrombamento. Quantas chaves existem, e com quem estão?"},
+       {t:"Só quem tinha uma das duas chaves: Dona Célia ou o professor Otávio.", ok:true},
+       {t:"Seu Raimundo, porque ele faz a ronda à noite.", fb:"Fazer a ronda não significa ter a chave da vitrine. Segundo Dona Célia, quem tem as chaves?"},
+       {t:"Bia, porque ela é monitora da biblioteca.", fb:"Ser monitora não dá a chave da vitrine. Releia quem tem as duas chaves."}
+     ],
+     hint:"Pista do Doc. 1: a vitrine foi aberta com chave. Pista do Doc. 3: só existem duas chaves. Com quem elas estão?",
+     win:"Excelente raciocínio! Você juntou pistas de dois textos diferentes para chegar a uma conclusão nova.",
+     clues:["Só Dona Célia e o professor Otávio poderiam abrir a vitrine."],
+     sus:{raimundo:"semchave", bia:"semchave", otavio:"chave"}}
+  ]
+},
+{
+  tab:"Doc. 4", title:"O diário de Bia", genre:"Diário pessoal",
+  doc:function(){return '<div class="doc lined diary"><span class="pin"></span>'+
+    '<p class="lined-date">Quinta-feira, 19h40</p>'+
+    '<p>Querido diário, hoje fiquei até mais tarde ajudando a montar o palco para a cerimônia de amanhã. Estou com o coração na boca: será que o meu conto vai ganhar?</p>'+
+    '<p>Quando subi para o 2º andar, a sala de Artes estava com a luz acesa e saía de lá um cheiro que fazia o nariz arder. Pela fresta da porta, vi uma coisa dourada em cima da mesa, brilhando como um pequeno sol. Quase entrei, mas lembrei que o professor detesta ser interrompido quando está criando. Fui embora morrendo de curiosidade!</p>'+
+    '<p class="sign">Bia</p>'+
+    '</div>';},
+  qs:[
+    {id:"q41", skill:"Linguagem figurada",
+     prompt:"O que significa a expressão “estou com o coração na boca”?",
+     opts:[
+       {t:"Bia estava muito ansiosa.", ok:true},
+       {t:"Bia estava passando mal do estômago.", fb:"Essa é uma leitura ao pé da letra. A expressão tem sentido figurado. Leia a pergunta que Bia faz logo depois."},
+       {t:"Bia estava com raiva de alguém.", fb:"Nada no diário mostra raiva. O que Bia está esperando que aconteça amanhã?"},
+       {t:"Bia tinha falado demais.", fb:"Isso seria “falar pelos cotovelos”. Pense em como alguém se sente esperando um resultado."}
+     ],
+     hint:"Leia a pergunta que vem logo depois: “será que o meu conto vai ganhar?”. Como alguém se sente esperando um resultado importante?",
+     win:"Isso mesmo! “Estar com o coração na boca” tem sentido figurado: significa estar muito nervoso ou ansioso.",
+     clues:["Bia também concorre no concurso e estava ansiosa pelo resultado."]},
+    {id:"q42", skill:"Relacionar textos e interpretar comparação",
+     prompt:"Juntando o diário de Bia com o bilhete do zelador, o que o detetive pode concluir?",
+     opts:[
+       {t:"O cheiro de tinta que o zelador sentiu vinha da sala de Artes, onde havia um objeto dourado na quinta à noite.", ok:true},
+       {t:"Bia pegou o troféu e levou para a sala de Artes.", fb:"O diário diz que Bia NÃO entrou na sala. E lembre: ela não tem chave da vitrine."},
+       {t:"A sala de Artes estava pegando fogo.", fb:"O cheiro “fazia o nariz arder”, mas nada indica fogo. De que cheiro o zelador falou?"},
+       {t:"O objeto dourado era o sol entrando pela janela.", fb:"“Como um pequeno sol” é uma comparação. E eram 19h40, já de noite, com a luz acesa."}
+     ],
+     hint:"Os dois textos falam de um cheiro forte no 2º andar. Segundo Bia, de onde ele vinha? E o que ela viu lá dentro?",
+     win:"Muito bem! Os dois textos se completam: o cheiro de tinta vinha da sala de Artes, onde algo dourado brilhava.",
+     clues:["Às 19h40, havia um objeto dourado na sala de Artes, com cheiro forte de tinta."]}
+  ]
+},
+{
+  tab:"Doc. 5", title:"O lembrete rasgado", genre:"Lembrete",
+  doc:function(){return '<div class="doc memo">'+
+    '<p><b>LEMBRETE</b> – quinta à noite</p>'+
+    '<ol>'+
+      '<li>Pin<span class="rip" aria-label="parte rasgada"></span> a base do troféu de dourado.</li>'+
+      '<li>Colar a placa com o nome do ven<span class="rip" aria-label="parte rasgada"></span> do concurso.</li>'+
+      '<li>Segredo absoluto! Ninguém pode ver o nome antes da cerimônia.</li>'+
+      '<li>Devolver o troféu à vitrine às 9h da sexta.</li>'+
+      '<li>Devolver a chave para a Célia.</li>'+
+    '</ol>'+
+    '<p class="sign">— O.</p>'+
+    '<div class="meta" style="font-family:var(--f-type)">Encontrado na lixeira da sala de Artes, sexta-feira, 8h</div>'+
+    '</div>';},
+  qs:[
+    {id:"q51", type:"fill", skill:"Sentido pelo contexto e forma dos verbos",
+     prompt:"O lembrete está rasgado. Complete as duas palavras que faltam, de acordo com o sentido do texto.",
+     fields:[
+       {pre:"Pin", tail:"a base do troféu de dourado.", accept:["pintar"],
+        near:["pinte","pinta","pintei","pintou","pinto","pintem","pintando","pintado","pintaram","pintamos"],
+        nearFb:"Você achou o verbo certo! Mas observe os outros itens da lista: “Colar”, “Devolver”. Em que forma esses verbos estão? Use a mesma forma.",
+        fb:"A primeira palavra ainda não está certa. O que se faz com tinta dourada na base de um troféu?"},
+       {pre:"ven", tail:"do concurso.", accept:["vencedor","vencedora"],
+        fb:"A segunda palavra ainda não está certa. Quem recebe o troféu de um concurso, e tem o nome gravado na placa?"}
+     ],
+     hint:"Lembre do cheiro de tinta que o zelador e Bia sentiram. E pense: que nome vai na placa de um troféu?",
+     win:"Ótimo! “Pintar” segue a mesma forma dos outros verbos da lista (colar, devolver), e quem recebe o troféu é o vencedor.",
+     clues:["O lembrete diz: “Pintar a base do troféu” e “Colar a placa com o nome do vencedor”."]},
+    {id:"q52", skill:"Finalidade do gênero textual",
+     prompt:"Qual é a principal finalidade desse texto?",
+     opts:[
+       {t:"Contar uma história de mistério.", fb:"O texto não narra acontecimentos; ele faz uma lista de tarefas."},
+       {t:"Lembrar o próprio autor das tarefas que ele precisava fazer.", ok:true},
+       {t:"Convidar os alunos para a cerimônia.", fb:"Um convite teria data, local e seria dirigido a alguém. Para quem esse texto foi escrito?"},
+       {t:"Pedir desculpas à Dona Célia.", fb:"Não há nenhum pedido de desculpas no texto."}
+     ],
+     hint:"O próprio título do texto diz qual é o gênero. Para que serve um lembrete?",
+     win:"Isso! Um lembrete serve para a própria pessoa não esquecer o que precisa fazer. E quem assina é “O.”.",
+     clues:["O lembrete foi assinado por “O.” e é uma lista de tarefas que o autor escreveu para si mesmo."]}
+  ]
+}
+];
+
+const EVIDENCE = [
+  {t:"A vitrine foi aberta com chave, e a 2ª chave estava com o professor Otávio.", ok:true},
+  {t:"Lucas disse que o troféu vai ser dele.", fb:"Lucas falou do concurso do ano que vem. E ele estava no ônibus desde as 17h."},
+  {t:"Havia um objeto dourado e cheiro de tinta na sala de Artes na quinta à noite.", ok:true},
+  {t:"O professor Otávio detesta ser interrompido.", fb:"Detestar interrupções é um jeito de ser. Isso não prova que alguém pegou o troféu."},
+  {t:"O lembrete assinado por “O.” fala em pintar a base do troféu e devolvê-lo às 9h.", ok:true},
+  {t:"Dona Célia saiu da escola às 17h30.", fb:"Essa informação é sobre Dona Célia, não sobre o professor Otávio."},
+  {t:"O professor é de Artes, e todo artista gosta de coisas douradas.", fb:"Isso é uma generalização: não vale para todos os artistas e não é uma pista do caso."}
+];
+
+const FINAL = [
+  {id:"f1", kind:"accuse", skill:"Concluir a partir de várias pistas",
+   prompt:"Hora da acusação! Quem pegou o Troféu Pena de Ouro?",
+   fbs:{
+     celia:"Dona Célia estava no dentista das 17h30 às 21h30, e a recepcionista confirma. O troféu sumiu entre 18h e 21h.",
+     raimundo:"Seu Raimundo não tem chave da vitrine, e foi ele mesmo quem avisou do sumiço.",
+     lucas:"Lucas estava no ônibus desde as 17h, longe da escola.",
+     bia:"Bia não tem chave da vitrine e, segundo o diário, nem entrou na sala de Artes."
+   },
+   hint:"A vitrine foi aberta com chave. Quem tinha as chaves? Dessas pessoas, quem NÃO tem álibi?",
+   win:"Isso! O professor Otávio era o único com uma chave e sem álibi. Agora você precisa provar."},
+  {id:"f2", kind:"evidence", skill:"Sustentar uma conclusão com provas",
+   prompt:"Prove a sua acusação! Escolha as 3 pistas que mais comprovam que foi o professor Otávio.",
+   hint:"Uma boa prova é um FATO ligado ao professor Otávio: a chave, o que foi visto na sala dele e o que ele mesmo escreveu.",
+   win:"Provas sólidas! Uma acusação se sustenta com fatos, e não com opiniões ou generalizações."},
+  {id:"f3", kind:"mc", skill:"Inferir a causa (o motivo)",
+   prompt:"Último mistério: por que o professor Otávio levou o troféu sem avisar ninguém?",
+   opts:[
+     {t:"Ele queria ficar com o troféu para sempre.", fb:"Releia o item 4 do lembrete: o que ele planejava fazer às 9h da sexta?"},
+     {t:"Ele estava com raiva de Dona Célia.", fb:"Nenhum documento mostra raiva. Ele até anotou que devolveria a chave a ela."},
+     {t:"Ele precisava pintar a base e colar a placa com o nome do vencedor, sem que ninguém visse o nome antes da cerimônia.", ok:true},
+     {t:"Ele quis ajudar Lucas a ganhar o concurso.", fb:"Lucas nem estava na cidade, e nenhuma pista liga o professor a ele."}
+   ],
+   hint:"Releia os itens 1, 2 e 3 do lembrete. O que ele precisava fazer, e o que ninguém podia ver?",
+   win:"Caso resolvido! O “segredo absoluto” era o nome do vencedor."}
+];
+const MAX = (function(){var n=FINAL.length; PHASES.forEach(function(p){n+=p.qs.length;}); return n*10;})();
+
+/* ===================== ESTADO ===================== */
+function fresh(){
+  return {screen:"start", name:"", phase:0, view:0, q:0, score:0, log:{}, clues:[], newClues:[],
+          sus:{celia:"",raimundo:"",lucas:"",bia:"",otavio:""}, anim:[], fb:null,
+          fin:{step:0, ev:[], evOut:[]}, err:""};
+}
+var S = fresh();
+
+function lg(id){ if(!S.log[id]) S.log[id]={tries:0,hint:false,out:[],done:false,pts:0,vals:["",""]}; return S.log[id]; }
+function curQ(){ return S.phase < PHASES.length ? PHASES[S.phase].qs[S.q] : FINAL[S.fin.step]; }
+
+/* ===================== UTILIDADES ===================== */
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z]/g,""); }
+function say(t){ var l=document.getElementById("live"); if(l){ l.textContent=""; setTimeout(function(){l.textContent=t;},30);} }
+var LETTERS=["A","B","C","D","E","F","G"];
+var ICON_LOCK='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 0 0-4 0v2z"/></svg>';
+var ICON_LUPA='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
+
+/* ===================== TELAS ===================== */
+function vStart(){
+  return '<div class="wrap"><div class="folder" data-tab="ARQUIVO Nº 06/2026">'+
+    '<div class="stampbig">CONFIDENCIAL</div>'+
+    '<div class="hero"><div>'+
+      '<div class="kicker">Língua Portuguesa · 6º ano · Interpretação de textos</div>'+
+      '<h1 class="title">O Caso do Troféu <em>Desaparecido</em></h1>'+
+      '<p class="lede">Na véspera da cerimônia do Concurso de Contos, o Troféu Pena de Ouro sumiu da vitrine da biblioteca. Cinco documentos, cinco suspeitos e uma regra: <b>quem lê com atenção encontra a verdade.</b></p>'+
+    '</div>'+
+    '<svg class="ghost" viewBox="0 0 120 140" role="img" aria-label="Contorno pontilhado de um troféu que não está mais na prateleira">'+
+      '<path d="M30 20 H90 V45 C90 70 75 82 60 82 C45 82 30 70 30 45 Z"/>'+
+      '<path d="M30 28 H16 C16 50 24 58 34 60"/><path d="M90 28 H104 C104 50 96 58 86 60"/>'+
+      '<path d="M52 82 V100 H68 V82"/><path d="M40 100 H80 V114 H40 Z"/>'+
+      '<path class="shelf" d="M4 118 H116"/>'+
+      '<text x="60" y="64" text-anchor="middle">?</text>'+
+    '</svg></div>'+
+    '<form class="startform" id="startform">'+
+      '<div class="field"><label for="nm">Nome do detetive (ou da equipe)</label>'+
+      '<input id="nm" autocomplete="off" maxlength="40" placeholder="Ex.: Equipe Lupa" value="'+esc(S.name)+'"></div>'+
+      '<button class="cta" type="submit">Abrir o arquivo do caso</button>'+
+      (S.err?'<p class="errmsg">'+esc(S.err)+'</p>':'')+
+    '</form>'+
+    '<ul class="how">'+
+      '<li><b>1. Leia</b>Cada documento é um gênero diferente: bilhete, mensagem, depoimento, diário e lembrete.</li>'+
+      '<li><b>2. Responda</b>Cada resposta certa libera uma pista. Cada erro custa pontos de reputação.</li>'+
+      '<li><b>3. Acuse</b>No fim, aponte quem pegou o troféu e prove com as pistas certas.</li>'+
+    '</ul>'+
+  '</div></div>';
+}
+
+function ficha(s, withStatus){
+  var st = withStatus && S.sus[s.id] ? STATUS[S.sus[s.id]] : null;
+  var anim = S.anim.indexOf(s.id)>-1 ? " slam" : "";
+  return '<div class="sus'+(st&&st.cleared?' cleared':'')+'">'+
+    '<div class="av" style="--c:'+s.c+'" aria-hidden="true">'+s.ini+'</div>'+
+    '<div><div class="nm">'+s.name+'</div><div class="rl">'+s.role+'</div></div>'+
+    '<div class="nt">'+s.note+'</div>'+
+    (st?'<div class="stamp '+st.cls+anim+'">'+st.txt+'</div>':'')+
+  '</div>';
+}
+
+function vBrief(){
+  return '<div class="wrap"><div class="folder" data-tab="ARQUIVO Nº 06/2026">'+
+    '<div class="brief"><div>'+
+      '<div class="letter">'+
+        '<p>Sexta-feira, 7h.</p>'+
+        '<p>Detetive '+esc(S.name)+',</p>'+
+        '<p>Hoje, às 10h, acontece a cerimônia do Concurso de Contos da nossa escola. O prêmio, o Troféu Pena de Ouro, ficava guardado na vitrine da biblioteca. Ontem, quinta-feira, à noite, ele desapareceu.</p>'+
+        '<p>Reuni cinco documentos encontrados na escola. Leia cada um com muita atenção: as respostas estão nos detalhes. Cada pergunta respondida libera uma pista para o seu caderno. No final, você vai apontar quem pegou o troféu e provar a acusação.</p>'+
+        '<p>Ah, um detalhe que todo mundo anda comentando: na semana passada, Lucas, do 7º ano, foi ouvido dizendo “Esse troféu ainda vai ser meu!”.</p>'+
+        '<p>Conto com você.<br>Diretora Sandra</p>'+
+      '</div>'+
+      '<div class="rules"><b>Regras do detetive</b><ul>'+
+        '<li>Leia o documento inteiro antes de responder.</li>'+
+        '<li>Cada resposta certa vale até 10 pontos de reputação. Cada erro custa 3 pontos.</li>'+
+        '<li>A lupa mostra uma dica, mas custa 2 pontos.</li>'+
+        '<li>Os documentos já lidos ficam nas abas: você pode reler quando quiser.</li>'+
+      '</ul></div>'+
+    '</div>'+
+    '<div><h2 style="font-family:var(--f-display);font-weight:400;margin-bottom:10px">Os suspeitos</h2>'+
+      '<div class="fichas">'+SUSPECTS.map(function(s){return ficha(s,false);}).join("")+'</div>'+
+    '</div></div>'+
+    '<div class="rowend"><button class="cta" data-a="begin">Começar a investigação</button></div>'+
+  '</div></div>';
+}
+
+function vBar(){
+  return '<header class="bar">'+
+    '<div class="case"><span class="caseno">CASO Nº 06/2026</span><span class="casetitle">O Troféu Desaparecido</span></div>'+
+    '<div class="who">Detetive <b>'+esc(S.name)+'</b></div>'+
+    '<div class="rep" title="Pontos de reputação"><span>Reputação</span><b>'+S.score+'</b><small>/ '+MAX+'</small></div>'+
+  '</header>';
+}
+
+function vTabs(){
+  var h='<nav class="tabs" aria-label="Documentos do caso">';
+  for(var i=0;i<=PHASES.length;i++){
+    var label = i<PHASES.length ? PHASES[i].tab : "Acusação";
+    var locked = i> S.phase;
+    var done = i< S.phase;
+    h+='<button class="tab'+(i===S.view?' on':'')+'" data-a="tab" data-i="'+i+'"'+(locked?' disabled aria-label="'+label+' (trancado)"':'')+'>'+
+       (locked?ICON_LOCK:'')+label+(done?' <span class="ck" aria-label="concluído">✓</span>':'')+'</button>';
+  }
+  return h+'</nav>';
+}
+
+function vClues(open){
+  if(!S.clues.length) return '<div class="clues"><b>Caderno de pistas</b><p style="margin:.3em 0 0;font-size:.9em">Ainda vazio. Responda às perguntas para anotar pistas.</p></div>';
+  return '<details class="clues"'+(open?' open':'')+'><summary>Caderno de pistas ('+S.clues.length+')</summary><ol>'+
+    S.clues.map(function(c){return '<li'+(S.newClues.indexOf(c)>-1?' class="new"':'')+'>'+esc(c)+'</li>';}).join("")+'</ol></details>';
+}
+
+function vHint(q,L){
+  return (L.hint?'<div class="hint"><b>Dica da lupa:</b> '+q.hint+'</div>':'');
+}
+function vTools(q,L){
+  if(L.done){
+    var last = S.phase>=PHASES.length && S.fin.step===FINAL.length-1;
+    var lastQ = S.phase<PHASES.length && S.q===PHASES[S.phase].qs.length-1;
+    var lbl = last ? "Ver o desfecho do caso" : (S.phase<PHASES.length ? (lastQ ? (S.phase===PHASES.length-1?"Ir para a acusação":"Abrir o próximo documento") : "Próxima pergunta") : "Continuar");
+    return '<div class="tools"><span></span><button class="go" data-a="cont">'+lbl+' →</button></div>';
+  }
+  return '<div class="tools"><button class="lupa" data-a="hint"'+(L.hint?' disabled':'')+'>'+ICON_LUPA+(L.hint?'Dica usada':'Usar a lupa (dica, −2)')+'</button></div>';
+}
+function vFb(){
+  if(!S.fb) return "";
+  if(S.fb.kind==="good") return '<div class="fb good" role="status"><span class="pts">+'+S.fb.pts+' pontos</span><b>Resposta certa!</b>'+S.fb.text+'</div>';
+  return '<div class="fb bad" role="status"><b>Ainda não.</b>'+S.fb.text+'</div>';
+}
+
+function vMC(q,L){
+  return '<div class="opts">'+q.opts.map(function(o,i){
+    var out = L.out.indexOf(i)>-1, right = L.done && o.ok;
+    var dis = out || L.done;
+    return '<button class="opt'+(out?' out':'')+(right?' right':'')+'" data-a="mc" data-o="'+i+'"'+(dis?' disabled':'')+'><span class="lt">'+LETTERS[i]+'</span><span>'+o.t+'</span></button>';
+  }).join("")+'</div>';
+}
+function vFill(q,L){
+  var h='<form class="fill" id="fillform">';
+  q.fields.forEach(function(f,i){
+    h+='<label for="fill'+i+'">'+(i+1)+'. '+f.pre+'<input id="fill'+i+'" autocomplete="off" spellcheck="false" value="'+esc(L.vals[i]||"")+'"'+(L.done?' disabled':'')+' aria-label="Complete a palavra que começa com '+f.pre+'"><span class="tail">'+f.tail+'</span></label>';
+  });
+  if(!L.done) h+='<div><button class="go" type="submit">Conferir as palavras</button></div>';
+  return h+'</form>';
+}
+function vQuestion(){
+  var ph=PHASES[S.phase], q=ph.qs[S.q], L=lg(q.id);
+  var body = q.type==="fill" ? vFill(q,L) : vMC(q,L);
+  return '<div class="qcard">'+
+    '<div class="qmeta"><span>Pergunta '+(S.q+1)+' de '+ph.qs.length+'</span><span>'+q.skill+'</span></div>'+
+    '<p class="prompt">'+q.prompt+'</p>'+body+vHint(q,L)+vFb()+vTools(q,L)+
+  '</div>';
+}
+
+function vReview(i){
+  var ph=PHASES[i];
+  return '<div class="qcard"><div class="qmeta"><span>Documento analisado</span><span>'+ph.tab+'</span></div>'+
+    '<p class="prompt">Você está relendo este documento. Respostas certas:</p><ol class="reviewlist">'+
+    ph.qs.map(function(q){
+      var a = q.type==="fill" ? "Pintar · vencedor" : q.opts.filter(function(o){return o.ok;})[0].t;
+      return '<li>'+q.prompt+'<span class="ans">'+a+'</span></li>';
+    }).join("")+'</ol>'+
+    '<div class="tools"><span></span><button class="go" data-a="tab" data-i="'+S.phase+'">Voltar ao caso atual →</button></div></div>';
+}
+
+function vFinal(){
+  var q=FINAL[S.fin.step], L=lg(q.id), body="";
+  if(q.kind==="accuse"){
+    body='<div class="accuse">'+SUSPECTS.map(function(s){
+      var out=L.out.indexOf(s.id)>-1, right=L.done && s.id==="otavio";
+      return '<button class="opt'+(out?' out':'')+(right?' right':'')+'" data-a="accuse" data-s="'+s.id+'"'+((out||L.done)?' disabled':'')+'><span class="av" style="--c:'+s.c+'" aria-hidden="true">'+s.ini+'</span><span>'+s.name+'</span></button>';
+    }).join("")+'</div>';
+  } else if(q.kind==="evidence"){
+    body='<div class="opts">'+EVIDENCE.map(function(e,i){
+      var out=S.fin.evOut.indexOf(i)>-1, sel=S.fin.ev.indexOf(i)>-1, right=L.done&&e.ok;
+      return '<button class="opt'+(out?' out':'')+(sel&&!L.done?' sel':'')+(right?' right':'')+'" data-a="ev" data-e="'+i+'" aria-pressed="'+(sel?'true':'false')+'"'+((out||L.done)?' disabled':'')+'><span class="lt">'+(i+1)+'</span><span>'+e.t+'</span></button>';
+    }).join("")+'</div>';
+    if(!L.done) body+='<div class="tools"><span class="counter">'+S.fin.ev.length+' de 3 pistas escolhidas</span><button class="go" data-a="evsubmit"'+(S.fin.ev.length!==3?' disabled':'')+'>Apresentar as provas</button></div>';
+  } else {
+    body=vMC(q,L);
+  }
+  return '<div class="qcard" style="border-left-color:var(--stamp)">'+
+    '<div class="qmeta"><span>Acusação · etapa '+(S.fin.step+1)+' de 3</span><span>'+q.skill+'</span></div>'+
+    '<p class="prompt">'+q.prompt+'</p>'+body+vHint(q,L)+vFb()+vTools(q,L)+'</div>';
+}
+
+function vGame(){
+  var left, right;
+  if(S.view<PHASES.length){
+    var ph=PHASES[S.view];
+    left='<div class="dochead"><h2>'+ph.title+'</h2><span class="genre">Gênero: '+ph.genre+'</span></div>'+ph.doc();
+    right = (S.view===S.phase ? vQuestion() : vReview(S.view)) + vClues(S.view!==S.phase || S.newClues.length>0);
+  } else {
+    left='<div class="dochead"><h2>Caderno do detetive</h2><span class="genre">Suas anotações</span></div>'+
+      '<div class="doc lined notebook"><span class="pin"></span><ol>'+S.clues.map(function(c){return '<li>'+esc(c)+'</li>';}).join("")+'</ol></div>';
+    right=vFinal();
+  }
+  return vBar()+'<section class="board" aria-label="Quadro de suspeitos">'+SUSPECTS.map(function(s){return ficha(s,true);}).join("")+'</section>'+
+    vTabs()+'<main class="work"><article>'+left+'</article><aside class="panel">'+right+'</aside></main>';
+}
+
+function rank(){
+  var p=S.score/MAX;
+  if(p>=0.9) return "Inspetor(a)-chefe";
+  if(p>=0.7) return "Investigador(a) de primeira";
+  if(p>=0.45) return "Detetive em ascensão";
+  return "Detetive em treinamento";
+}
+function vEnd(){
+  var skills=[]; PHASES.forEach(function(p){p.qs.forEach(function(q){ if(skills.indexOf(q.skill)<0) skills.push(q.skill);});});
+  FINAL.forEach(function(q){ if(skills.indexOf(q.skill)<0) skills.push(q.skill);});
+  return vBar()+'<div class="wrap"><div class="folder" data-tab="CASO ENCERRADO">'+
+    '<div class="stampbig">RESOLVIDO</div>'+
+    '<div class="end"><div class="story">'+
+      '<h2 class="title" style="font-size:clamp(2rem,4.5vw,3.4rem)">O desfecho</h2>'+
+      '<div class="letter">'+
+      '<p>Sexta-feira, 9h em ponto. A porta da biblioteca se abre e o professor Otávio entra, com as mãos sujas de tinta e o Troféu Pena de Ouro brilhando mais do que nunca.</p>'+
+      '<p>— Desculpem o susto! — diz ele. — Eu precisava pintar a base e colar a placa com o nome do vencedor sem que ninguém visse o nome antes da hora. Esqueci de avisar que a vitrine ia ficar vazia por uma noite.</p>'+
+      '<p>Ele devolve a chave para Dona Célia, que finalmente respira aliviada. Às 10h, na cerimônia, a diretora revela a placa:</p>'+
+      '</div>'+
+      '<div class="plaque">CONCURSO DE CONTOS 2026<b>1º LUGAR</b>BEATRIZ (BIA) · 6º ANO</div>'+
+      '<p style="text-align:center;font-size:.95em">E Bia, com o coração na boca de novo, sobe ao palco.</p>'+
+    '</div>'+
+    '<div class="side">'+
+      '<div class="badge"><div><div class="t1">DISTINTIVO DE</div><div class="t2">DETETIVE LEITOR</div><div class="t3">'+esc(S.name)+'</div><div class="t4">'+S.score+'<small style="font-size:.45em">/'+MAX+'</small></div><div class="t1">'+rank().toUpperCase()+'</div></div></div>'+
+      '<div class="rules" style="margin-top:0"><b>Habilidades de leitura que você usou</b><ul class="skills">'+skills.map(function(s){return '<li>'+s+'</li>';}).join("")+'</ul></div>'+
+      '<div class="rowend" style="margin-top:0"><button class="cta" data-a="restart">Jogar de novo</button></div>'+
+    '</div></div>'+
+  '</div></div>';
+}
+
+/* ===================== RENDER ===================== */
+function render(){
+  var app=document.getElementById("app");
+  app.innerHTML = S.screen==="start"?vStart():S.screen==="brief"?vBrief():S.screen==="end"?vEnd():vGame();
+  S.anim=[]; S.newClues=[];
+  var sf=document.getElementById("startform");
+  if(sf) sf.addEventListener("submit",function(e){ e.preventDefault(); start(); });
+  var ff=document.getElementById("fillform");
+  if(ff) ff.addEventListener("submit",function(e){ e.preventDefault(); checkFill(); });
+}
+function toTop(sel){
+  var el=document.querySelector(sel||".tabs");
+  if(el && el.scrollIntoView){ try{ el.scrollIntoView({block:"start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); }catch(e){} }
+}
+
+/* ===================== AÇÕES ===================== */
+function start(){
+  var v=(document.getElementById("nm")||{}).value||"";
+  v=v.trim();
+  if(!v){ S.err="Escreva o nome do detetive ou da equipe para abrir o arquivo."; render(); var i=document.getElementById("nm"); if(i) i.focus(); return; }
+  S.name=v; S.err=""; S.screen="brief"; render(); window.scrollTo(0,0);
+}
+function solve(q,L){
+  var pts=Math.max(1, 10-3*L.tries-(L.hint?2:0));
+  L.done=true; L.pts=pts; S.score+=pts;
+  S.fb={kind:"good", text:q.win, pts:pts};
+  (q.clues||[]).forEach(function(c){ if(S.clues.indexOf(c)<0){ S.clues.push(c); S.newClues.push(c);} });
+  var sus=q.sus||{}; Object.keys(sus).forEach(function(k){ S.sus[k]=sus[k]; S.anim.push(k); });
+  say("Resposta certa. Mais "+pts+" pontos.");
+}
+function miss(L,text){
+  L.tries++; S.fb={kind:"bad", text:text}; say("Ainda não. "+text.replace(/<[^>]+>/g,""));
+}
+function answerMC(i){
+  var q=curQ(), L=lg(q.id); if(L.done) return;
+  var o=q.opts[i]; if(!o || L.out.indexOf(i)>-1) return;
+  if(o.ok) solve(q,L); else { L.out.push(i); miss(L,o.fb); }
+  render();
+}
+function checkFill(){
+  var q=curQ(), L=lg(q.id); if(L.done) return;
+  var msgs=[], allOk=true;
+  q.fields.forEach(function(f,i){
+    var raw=(document.getElementById("fill"+i)||{}).value||"";
+    L.vals[i]=raw;
+    var v=norm(raw), pre=norm(f.pre), cands=[v, pre+v];
+    var ok=f.accept.some(function(a){return cands.indexOf(a)>-1;});
+    if(!ok){
+      allOk=false;
+      var near=(f.near||[]).some(function(a){return cands.indexOf(a)>-1;});
+      msgs.push(near?f.nearFb:f.fb);
+    }
+  });
+  if(allOk){ q.fields.forEach(function(f,i){ L.vals[i]= norm(L.vals[i]).indexOf(norm(f.pre))===0 ? L.vals[i].slice(f.pre.length) : L.vals[i]; }); solve(q,L); }
+  else miss(L, msgs.join(" "));
+  render();
+}
+function hint(){
+  var q=curQ(), L=lg(q.id); if(L.done||L.hint) return;
+  L.hint=true; render();
+}
+function cont(){
+  S.fb=null;
+  if(S.phase<PHASES.length){
+    if(S.q<PHASES[S.phase].qs.length-1){ S.q++; render(); toTop(".qcard"); return; }
+    S.phase++; S.view=S.phase; S.q=0; render(); toTop(); return;
+  }
+  if(S.fin.step<FINAL.length-1){ S.fin.step++; render(); toTop(".qcard"); return; }
+  S.sus.otavio="r"; S.screen="end"; render(); window.scrollTo(0,0);
+}
+function accuse(id){
+  var q=FINAL[0], L=lg(q.id); if(L.done || L.out.indexOf(id)>-1) return;
+  if(id==="otavio"){ solve(q,L); S.sus.otavio="r"; S.anim.push("otavio"); }
+  else { L.out.push(id); miss(L,q.fbs[id]); }
+  render();
+}
+function toggleEv(i){
+  var L=lg("f2"); if(L.done || S.fin.evOut.indexOf(i)>-1) return;
+  var k=S.fin.ev.indexOf(i);
+  if(k>-1) S.fin.ev.splice(k,1); else if(S.fin.ev.length<3) S.fin.ev.push(i);
+  S.fb=null; render();
+}
+function submitEv(){
+  var q=FINAL[1], L=lg(q.id); if(L.done || S.fin.ev.length!==3) return;
+  var wrong=S.fin.ev.filter(function(i){return !EVIDENCE[i].ok;});
+  if(!wrong.length){ solve(q,L); }
+  else{
+    var txt = wrong.map(function(i){ return "Pista "+(i+1)+": "+EVIDENCE[i].fb; }).join(" ");
+    wrong.forEach(function(i){ S.fin.evOut.push(i); });
+    S.fin.ev=S.fin.ev.filter(function(i){return EVIDENCE[i].ok;});
+    miss(L, (wrong.length===1?"Uma das pistas não serve como prova. ":"Algumas pistas não servem como prova. ")+txt);
+  }
+  render();
+}
+
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-a]"); if(!b || b.disabled) return;
+  var a=b.getAttribute("data-a");
+  if(a==="begin"){ S.screen="game"; render(); window.scrollTo(0,0); }
+  else if(a==="tab"){ var i=+b.getAttribute("data-i"); if(i<=S.phase){ S.view=i; render(); } }
+  else if(a==="mc") answerMC(+b.getAttribute("data-o"));
+  else if(a==="hint") hint();
+  else if(a==="cont") cont();
+  else if(a==="accuse") accuse(b.getAttribute("data-s"));
+  else if(a==="ev") toggleEv(+b.getAttribute("data-e"));
+  else if(a==="evsubmit") submitEv();
+  else if(a==="restart"){ var n=S.name; S=fresh(); S.name=n; render(); window.scrollTo(0,0); }
+});
+
+/* ===================== INÍCIO (mantém o progresso se a página for atualizada pelo visualizador) ===================== */
+function boot(data){
+  if(data && data.screen){ S=Object.assign(fresh(), data); S.anim=[]; S.newClues=[]; }
+  render();
+}
+try{ if(window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(function(){ return JSON.parse(JSON.stringify(S)); }); }catch(e){}
+var hot = window.claude && window.claude.hot;
+if(hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
+})();
+</script>
+</body>
+</html>
